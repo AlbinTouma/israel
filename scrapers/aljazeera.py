@@ -1,6 +1,7 @@
 from core import Database, Logger, WebPage, Scraper
-import datetime
+from datetime import datetime, date
 import time
+from random import randint
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -27,11 +28,19 @@ class AljazeeraScraper():
             result = []
             for title, link, article_date in zip(titles, hrefs, dates):
                 href = link.get_attribute('href')
-                if href not in seen_links:
-                    continue
+                result_date = self.convert_date(article_date.text)
+                cut_off_date = date(2025, 5, 10) 
+                
+                if result_date < cut_off_date:
+                    stop_flag = True
+                    print('Condition met')
+                    return result, stop_flag
+        
+
+        #        if href not in seen_links:
+        #            continue
 
                 seen_links.add(href)
-            
                 
                 result.append(
                     WebPage(
@@ -43,23 +52,19 @@ class AljazeeraScraper():
                     )
                 )
                 
-                result_date = self.convert_date(article_date.text)
-                cut_off_date = date(2025, 4, 30) 
-                if result_date < cut_off_date:
-                    stop_flag = True
-                    return result, stop_flag
 
+            
             return result, stop_flag
         
 
         except Exception as e:
-            logger.error(f"Error:", {e})
+           # logger.error(f"Error:", {e})
             return [], False
         
                         
     def run(self):
         homepage = WebPage(link='https://www.aljazeera.com/tag/israel-palestine-conflict/', media_type='homepage')
-        self.scraper.run(homepage, self.collect_page_titles, 'aljazeera_links', incremental=True)
+        self.scraper.run(scrape_object=homepage, scraper_function=self.collect_page_titles, filename='aljazeera_links', incremental=True)
         time.sleep(randint(1, 3))
 
 

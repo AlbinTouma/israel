@@ -5,10 +5,9 @@ import json
 import undetected_chromedriver as uc
 import time
 from random import randint
-import dataclasses as dc
 from datetime import datetime, date
-from pathlib import Path
 from .models import WebPage
+from .database import Database
 
 
 class Scraper:
@@ -41,9 +40,10 @@ class Scraper:
 
                 if scraper_function and scrape_object:
                     result, stop_flag = scraper_function(driver, scrape_object, seen_links)
-                    self.write_to_jsonl(result, filename)
+                    print(filename)
+                    Database.write_to_jsonl(result, filename)
                     if stop_flag:
-                      #  logger.info("Criteria met, terminating infinity scroll.")
+                        print("Criteria met, terminating infinity scroll.")
                         break
 
     
@@ -63,67 +63,12 @@ class Scraper:
             print("Error:", e)
 
         
-    def write_to_jsonl(self, result: list[WebPage] | WebPage | Exception, filename: str):
-        """Writes the result of the scraper function to a jsonl file. 
-        If result is a list, each element is written to the file. 
-        If result is a dict, it is written as a single line.
-        """
-        CURRENT_DIR = Path().resolve()
-        PROJECT_ROOT = CURRENT_DIR.parent
-        #PROJECT_ROOT = Path(__file__).resolve().parent.parent  # Adjust as needed
-
-        output_dir = PROJECT_ROOT / 'output'
-        output_dir.mkdir(exist_ok=True)  # Create it if it doesn't exist
-        logs_dir = PROJECT_ROOT / 'logs'
-        logs_dir.mkdir(exist_ok=True)  # Create it if it doesn't exist
-
-        # Check if the file already exists
-        if not (output_dir / f'{filename}.jsonl').exists():
-            with open(f'{output_dir}/{filename}.jsonl', 'w') as f:
-                f.write('')
-                f.close()
-        if not (logs_dir / f'{filename}_error.jsonl').exists():
-            with open(f'{logs_dir}/{filename}_error.jsonl', 'w') as f:
-                f.write('')
-                f.close()
-        if not (logs_dir / f'{filename}_captcha.jsonl').exists():
-            with open(f'{logs_dir}/{filename}_captcha.jsonl', 'w') as f:
-                f.write('')
-                f.close()
-        
-
-
-        if result:
-            with open(f'{output_dir}/{filename}.jsonl', 'a') as f:        
-                if isinstance(result, list):
-                    result = [dc.asdict(r) for r in result]
-                    [f.write(json.dumps(r, ensure_ascii=False) + '\n') for r in result]
-
-                elif isinstance(result, WebPage):
-                    f.write(json.dumps(dc.asdict(result), ensure_ascii=False) + '\n')
-                    f.close()
-        
-                elif isinstance(result, Exception):
-                    with open(f'{logs_dir}/{filename}_error.jsonl', 'a') as f:
-                        f.write(json.dumps({'error': str(result)}, ensure_ascii=False) + '\n')
-                        f.close()
-
-        else:
-            with open(f'{logs_dir}/{filename}_captcha.jsonl', 'a') as f:
-                if isinstance(result, list):
-                    for r in result:
-                        f.write(r + '\n')
-                    f.close()
-                else:    
-                    f.write(result + '\n')
-                    f.close()
 
     def run(self, scrape_object: WebPage, scraper_function, filename: str, incremental: bool):
         # This function is used to run the scraper
         self.driver  = uc.Chrome(headless=False,use_subprocess=False)
         self.driver.get(scrape_object.link)
 
-        ## If page is infinite scroll, we scroll down to the page, write results, press button, and repeat until stop condition is met.
         if incremental:
             self.scroll_method(
                 driver=self.driver,
@@ -135,6 +80,6 @@ class Scraper:
         else:
             self.scroll_method(driver=self.driver)
             result =  scraper_function(self.driver, scrape_object)
-            self.write_to_jsonl(result, filename)
+            Database.write_to_jsonl(result, filename)
         
         self.driver.quit()
