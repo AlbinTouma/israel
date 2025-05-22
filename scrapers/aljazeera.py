@@ -4,10 +4,9 @@ import time
 from random import randint
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from core.scraper import Scraper
 
 class AljazeeraScraper():
-    def __init__(self):
-        self.scraper = Scraper()
 
     def convert_date(self, date_str: str) -> datetime.date:
         for fmt in ("%d %B %Y", "%d %b %Y"):  # Try full and short month names
@@ -18,9 +17,10 @@ class AljazeeraScraper():
         raise ValueError(f"Date format not recognized: {date_str}")
 
 
-    def collect_page_titles(self, driver, _: WebPage, seen_links: set) -> tuple[list[WebPage], bool]:
+    def collect_page_titles(self, driver, _: WebPage) -> tuple[list[WebPage], bool]:
         try:
-            stop_flag = False
+            result_date = None
+
             titles = driver.find_elements(By.XPATH, '//h3[@class="gc__title"]')
             hrefs = driver.find_elements(By.XPATH, '//a[@class="u-clickable-card__link"]')
             dates = driver.find_elements(By.XPATH, '//div[@class="date-simple"]//span[@aria-hidden="true"]')
@@ -29,19 +29,7 @@ class AljazeeraScraper():
             for title, link, article_date in zip(titles, hrefs, dates):
                 href = link.get_attribute('href')
                 result_date = self.convert_date(article_date.text)
-                cut_off_date = date(2025, 5, 10) 
-                
-                if result_date < cut_off_date:
-                    stop_flag = True
-                    print('Condition met')
-                    return result, stop_flag
-        
-
-        #        if href not in seen_links:
-        #            continue
-
-                seen_links.add(href)
-                
+                            
                 result.append(
                     WebPage(
                         website='aljazeera',
@@ -51,10 +39,12 @@ class AljazeeraScraper():
                         link=href,
                     )
                 )
-                
 
-            
-            return result, stop_flag
+
+            if result_date < date(2025, 5, 17):
+                return result, True
+
+            return result, False
         
 
         except Exception as e:
@@ -64,7 +54,7 @@ class AljazeeraScraper():
                         
     def run(self):
         homepage = WebPage(link='https://www.aljazeera.com/tag/israel-palestine-conflict/', media_type='homepage')
-        self.scraper.run(scrape_object=homepage, scraper_function=self.collect_page_titles, filename='aljazeera_links', incremental=True)
+        Scraper(scrape_object=homepage, scraper_function=self.collect_page_titles, filename='aljazeera_links', incremental=True).run()
         time.sleep(randint(1, 3))
 
 
