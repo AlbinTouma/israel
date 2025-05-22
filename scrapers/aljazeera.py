@@ -16,7 +16,6 @@ class AljazeeraScraper():
                 continue
         raise ValueError(f"Date format not recognized: {date_str}")
 
-
     def collect_page_titles(self, driver, _: WebPage) -> tuple[list[WebPage], bool]:
         try:
             result_date = None
@@ -51,10 +50,29 @@ class AljazeeraScraper():
            # logger.error(f"Error:", {e})
             return [], False
         
-                        
+
+
+    def collect_newspage(self, driver, _: WebPage) -> tuple[list[WebPage], bool]:
+        h = driver.find_elements(By.XPATH, '//main//p')
+        title = driver.find_element(By.XPATH, '//header//h1').text
+        strings = []
+        for i in h:
+            strings.append(i.text)
+            
+        content = ''.join(strings)
+        
+        y = [WebPage(title=title, content=content)]
+        
+        print(y)
+        
+        return y, None
+
     def run(self):
-        homepage = WebPage(link='https://www.aljazeera.com/tag/israel-palestine-conflict/', media_type='homepage')
-        Scraper(scrape_object=homepage, scraper_function=self.collect_page_titles, filename='aljazeera_links', incremental=True).run()
+        #homepage = WebPage(link='https://www.aljazeera.com/tag/israel-palestine-conflict/', media_type='homepage')
+        #Scraper(scrape_object=homepage, scraper_function=self.collect_page_titles, filename='aljazeera_links').run()
+       
+        news = WebPage(link='https://www.aljazeera.com/news/2025/5/22/lebanese-pm-condemns-wave-of-israeli-attacks-on-southern-lebanon', media_type='homepage')
+        Scraper(scrape_object=news, scraper_function=self.collect_newspage, filename='aljazeera' ).run()
         time.sleep(randint(1, 3))
 
 

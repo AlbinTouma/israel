@@ -27,21 +27,20 @@ class Browser:
         try:
             old_height = self.Scraper.driver.execute_script("return document.body.scrollHeight")
             self.Scraper.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)
             button_clicked: bool = self.click_button()
             new_height = self.Scraper.driver.execute_script("return document.body.scrollHeight")
             return new_height != old_height or button_clicked
         except Exception as e:
             print("Error:", e)
 
-    
 
 
 class Scraper:
-    def __init__(self, scrape_object: WebPage, scraper_function, filename: str, incremental: bool ):
+    def __init__(self, scrape_object: WebPage, scraper_function, filename: str):
         self.scrape_object = scrape_object
         self.scraper_function = scraper_function
         self.filename = filename
-        self.incremental = incremental
 
     def run(self):
         # This function is used to run the scraper
@@ -65,11 +64,10 @@ class Scraper:
                 Database.write_to_jsonl(deduped_list, self.filename)
 
             if stop_flag:
-                print("Stop flag is of value:", stop_flag)
                 break
             
             if not content_change:
-                consecutive_change += 0
+                consecutive_change += 1
                 if consecutive_change >= 3:
                     print('No new content upon scroll')
                     break
