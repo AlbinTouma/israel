@@ -40,7 +40,7 @@ class AljazeeraScraper():
                 )
 
 
-            if result_date < date(2025, 5, 17):
+            if result_date < date(2024, 9, 6):
                 return result, True
 
             return result, False
@@ -68,11 +68,12 @@ class AljazeeraScraper():
         return y, None
 
     def run(self):
-        #homepage = WebPage(link='https://www.aljazeera.com/tag/israel-palestine-conflict/', media_type='homepage')
-        #Scraper(scrape_object=homepage, scraper_function=self.collect_page_titles, filename='aljazeera_links').run()
-       
-        news = WebPage(link='https://www.aljazeera.com/news/2025/5/22/lebanese-pm-condemns-wave-of-israeli-attacks-on-southern-lebanon', media_type='homepage')
-        Scraper(scrape_object=news, scraper_function=self.collect_newspage, filename='aljazeera' ).run()
+        homepage = WebPage(link='https://www.aljazeera.com/tag/israel-palestine-conflict/', media_type='homepage')
+        Scraper(scrape_object=homepage, scraper_function=self.collect_page_titles, filename='aljazeera_links').run()
         time.sleep(randint(1, 3))
 
+
+
+        #news = WebPage(link='https://www.aljazeera.com/news/2025/5/22/lebanese-pm-condemns-wave-of-israeli-attacks-on-southern-lebanon', media_type='homepage')
+        #Scraper(scrape_object=news, scraper_function=self.collect_newspage, filename='aljazeera' ).run()
 
