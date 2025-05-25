@@ -24,12 +24,17 @@ class Browser:
         """)
     
     def click_button(self):
-        button = self.Scraper.driver.find_element(By.XPATH, '//button[@data-testid="show-more-button" and contains(@class, "show-more-button") and contains(@class, "big-margin")]')        
+        try:
+            button = self.Scraper.driver.find_element(By.XPATH, '//button[@data-testid="show-more-button" and contains(@class, "show-more-button") and contains(@class, "big-margin")]')        
+        except Exception as e:
+            return False
+            
         if button.is_displayed() and button.is_enabled():
             self.Scraper.driver.execute_script("arguments[0].click();", button)
             time.sleep(1)
             return True
         return False
+
     
     def scroll_method(self) -> bool:
         '''Returns True if button is clicked or new height is not the same as old height'''
@@ -51,7 +56,7 @@ class Browser:
             new_height = self.Scraper.driver.execute_script("return document.body.scrollHeight")
             return new_height != old_height or button_clicked
         except Exception as e:
-            print("Error:", e)
+            print("ERROR IN SCROLL:", e)
 
 
 
@@ -71,7 +76,15 @@ class Scraper:
         seen_links = set()
 
         while True:
+            result: list[WebPage] | Exception 
+            stop_flag: bool 
+        
             result, stop_flag = self.scraper_function(self.driver, self.scrape_object)
+            
+            if isinstance(result, Exception):
+                print(f"Exception, skipping {self.scrape_object.title}")
+                break
+            
             if result:
                 deduped_list = []
                 for page in result:

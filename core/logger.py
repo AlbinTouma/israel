@@ -2,14 +2,16 @@ import dataclasses
 import logging
 
 class Logger:
-    def run():
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.INFO)
-        file_handler = logging.FileHandler('scraper.log')
-        file_handler.setLevel(logging.INFO)
-        # Create a formatter and set it for the handler
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(formatter)
-        # Add the handler to the logger
-        logger.addHandler(file_handler)
-
+    def __init__(self):
+        self.errlog = self.setup_logger(name='errlog', filename='logs/errlog.log')
+        self.log = self.setup_logger(name='log', filename='logs/ouput.log')
+    
+    def setup_logger(self, name, filename):
+            logger = logging.getLogger(name)
+            if not logger.handlers:
+                logger.setLevel(logging.DEBUG)
+                Format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                fh = logging.FileHandler(filename)
+                fh.setFormatter(Format)
+                logger.addHandler(fh)
+            return logger

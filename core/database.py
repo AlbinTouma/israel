@@ -16,13 +16,19 @@ class Database:
         return False
     
 
-    def read_jsonl_to_df(filename) -> list[dict]:
+    def read_jsonl(filename) -> list[dict]:
         r = []
-        with open(f"../output/{filename}.jsonl", 'r') as reader:
-            for row in reader:
-                json_row = json.loads(row)
-                r.append(json_row)
-            
+
+        with open(f"output/{filename}.jsonl", 'r') as reader:
+            for index, row in enumerate(reader):       
+                try:
+                            json_row = json.loads(row)
+                            r.append(json_row)
+                except json.decoder.JSONDecodeError as e:
+                    print(e)
+                    print(index)
+                    continue
+                        
         return r
     
 
