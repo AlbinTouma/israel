@@ -25,8 +25,6 @@ class Database:
                             json_row = json.loads(row)
                             r.append(json_row)
                 except json.decoder.JSONDecodeError as e:
-                    print(e)
-                    print(index)
                     continue
                         
         return r
@@ -61,7 +59,6 @@ class Database:
                 if isinstance(result, list):
                     result = [Database.to_dict(r) for r in result]
                     for ddict in result:
-                        print(ddict)
                         jout = json.dumps(ddict) + '\n'
                         f.write(jout)
                     f.close()

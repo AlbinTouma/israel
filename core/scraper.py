@@ -82,7 +82,6 @@ class Scraper:
             result, stop_flag = self.scraper_function(self.driver, self.scrape_object)
             
             if isinstance(result, Exception):
-                print(f"Exception, skipping {self.scrape_object.title}")
                 break
             
             if result:
@@ -102,7 +101,6 @@ class Scraper:
             if not content_change:
                 consecutive_change += 1
                 if consecutive_change >= 3:
-                    print('No new content upon scroll')
                     break
 
         self.driver.quit()
