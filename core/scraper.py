@@ -62,13 +62,14 @@ class Browser:
 
 
 class Scraper:
-    def __init__(self, scrape_object: WebPage, scraper_function, filename: str):
+
+    def __init__(self, scrape_object: WebPage, scraper_function, filename: str, logger):
         self.scrape_object = scrape_object
         self.scraper_function = scraper_function
         self.filename = filename
+        self.logger = logger
 
     def run(self):
-        # This function is used to run the scraper
         self.driver  = uc.Chrome(headless=False,use_subprocess=False)
         self.driver.get(self.scrape_object.link)
         browser = Browser(self)

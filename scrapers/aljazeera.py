@@ -82,18 +82,19 @@ class AljazeeraScraper():
 
     def collect_newsfeed(self, driver, _: WebPage) -> tuple[list[WebPage], bool] | tuple[Exception, bool]:
         try:
-            title = driver.find_element('').text
-            date_simple = driver.find_element().text
-            p = driver.find_elements()
+            title = driver.find_element(By.XPATH, '//main//h1').text
+            date_simple = driver.find_element(By.XPATH, '//*[@id="main-content-area"]/div[2]/div[2]/div[1]/div/div/span[2]').text
+            p = driver.find_elements(By.XPATH, '//*[@id="main-content-area"]/div[2]/p')
             strings = []
             for i in p:
                 strings.append(i.text)
-
             content = ''.join(strings)
+
             result = []
-            result.append(WebPage(website='aljazeera', url=driver.current_url, media_type='newsfeed', date=date_simple, title=title, content=content))
+            result.append(WebPage(website='aljazeera', url=driver.current_url, media_type='program/newsfeed', date=date_simple, title=title, content=content))
             return result, None
         except Exception as e:
+            self.errlog.exception(f"Exception type: {e}")
             return e, None
     
 
@@ -110,8 +111,18 @@ class AljazeeraScraper():
             self.log.info(f'Running job: {news_page["link"]}')
             page = WebPage(title='aljazeera', link=news_page['link'], media_type='news')
             Scraper(scrape_object=page, scraper_function=self.collect_newspage, filename='aljazeera').run()
-        
+    
+    def run_collect_newsfeed(self):
+        dict_list: list[dict] = Database.read_jsonl(filename='aljazeera_links')
+        dict_list = [i for i in dict_list if i['media_type'] == 'program/newsfeed']
+
+        for news_page in dict_list:
+            self.log.info(f'Running job: {news_page["link"]}')
+            page = WebPage(title='aljazeera', link=news_page['link'], media_type='program/newsfeed')
+            Scraper(scrape_object=page, scraper_function=self.collect_newsfeed, filename='aljazeera_newsfeed', logger=self.errlog).run()
+            time.sleep(randint(1, 3))
+
 
     def run(self):
         self.log.info('RUNNING JOB')
-        self.run_collect_newspage()
+        self.run_collect_newsfeed()
