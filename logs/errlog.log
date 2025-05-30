@@ -56,3 +56,119 @@ Stacktrace:
 #18 0x7bc05cc9caa4 <unknown>
 #19 0x7bc05cd29c3c <unknown>
 
+2025-05-30 10:57:24,957 - errlog - ERROR - Exception type: Message: no such element: Unable to locate element: {"method":"xpath","selector":"//*[@id="main-content-area"]/div[2]/div[2]/div[1]/div/div/span[2]"}
+  (Session info: chrome=137.0.7151.55); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+#0 0x581e1966e29a <unknown>
+#1 0x581e190da040 <unknown>
+#2 0x581e1912b990 <unknown>
+#3 0x581e1912bb81 <unknown>
+#4 0x581e1917a664 <unknown>
+#5 0x581e191516bd <unknown>
+#6 0x581e19177ace <unknown>
+#7 0x581e19151463 <unknown>
+#8 0x581e1911dc55 <unknown>
+#9 0x581e1911e8c1 <unknown>
+#10 0x581e196331bb <unknown>
+#11 0x581e196370c9 <unknown>
+#12 0x581e1961ba39 <unknown>
+#13 0x581e19637c78 <unknown>
+#14 0x581e196006bf <unknown>
+#15 0x581e1965b948 <unknown>
+#16 0x581e1965bb26 <unknown>
+#17 0x581e1966d176 <unknown>
+#18 0x71d135e9caa4 <unknown>
+#19 0x71d135f29c3c <unknown>
+Traceback (most recent call last):
+  File "/home/albin/projects/israel/scrapers/aljazeera.py", line 86, in collect_newsfeed
+    date_simple = driver.find_element(By.XPATH, '//*[@id="main-content-area"]/div[2]/div[2]/div[1]/div/div/span[2]').text
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/albin/projects/israel/.env/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py", line 917, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/albin/projects/israel/.env/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py", line 448, in execute
+    self.error_handler.check_response(response)
+  File "/home/albin/projects/israel/.env/lib/python3.11/site-packages/selenium/webdriver/remote/errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"xpath","selector":"//*[@id="main-content-area"]/div[2]/div[2]/div[1]/div/div/span[2]"}
+  (Session info: chrome=137.0.7151.55); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+#0 0x581e1966e29a <unknown>
+#1 0x581e190da040 <unknown>
+#2 0x581e1912b990 <unknown>
+#3 0x581e1912bb81 <unknown>
+#4 0x581e1917a664 <unknown>
+#5 0x581e191516bd <unknown>
+#6 0x581e19177ace <unknown>
+#7 0x581e19151463 <unknown>
+#8 0x581e1911dc55 <unknown>
+#9 0x581e1911e8c1 <unknown>
+#10 0x581e196331bb <unknown>
+#11 0x581e196370c9 <unknown>
+#12 0x581e1961ba39 <unknown>
+#13 0x581e19637c78 <unknown>
+#14 0x581e196006bf <unknown>
+#15 0x581e1965b948 <unknown>
+#16 0x581e1965bb26 <unknown>
+#17 0x581e1966d176 <unknown>
+#18 0x71d135e9caa4 <unknown>
+#19 0x71d135f29c3c <unknown>
+
+2025-05-30 11:12:53,083 - errlog - ERROR - Exception type: Message: no such element: Unable to locate element: {"method":"xpath","selector":"//*[@id="main-content-area"]/div[2]/div[2]/div[1]/div/div/span[2]"}
+  (Session info: chrome=137.0.7151.55); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+#0 0x6527552ab29a <unknown>
+#1 0x652754d17040 <unknown>
+#2 0x652754d68990 <unknown>
+#3 0x652754d68b81 <unknown>
+#4 0x652754db7664 <unknown>
+#5 0x652754d8e6bd <unknown>
+#6 0x652754db4ace <unknown>
+#7 0x652754d8e463 <unknown>
+#8 0x652754d5ac55 <unknown>
+#9 0x652754d5b8c1 <unknown>
+#10 0x6527552701bb <unknown>
+#11 0x6527552740c9 <unknown>
+#12 0x652755258a39 <unknown>
+#13 0x652755274c78 <unknown>
+#14 0x65275523d6bf <unknown>
+#15 0x652755298948 <unknown>
+#16 0x652755298b26 <unknown>
+#17 0x6527552aa176 <unknown>
+#18 0x72f8a229caa4 <unknown>
+#19 0x72f8a2329c3c <unknown>
+Traceback (most recent call last):
+  File "/home/albin/projects/israel/scrapers/aljazeera.py", line 86, in collect_newsfeed
+    date_simple = driver.find_element(By.XPATH, '//*[@id="main-content-area"]/div[2]/div[2]/div[1]/div/div/span[2]').text
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/albin/projects/israel/.env/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py", line 917, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/albin/projects/israel/.env/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py", line 448, in execute
+    self.error_handler.check_response(response)
+  File "/home/albin/projects/israel/.env/lib/python3.11/site-packages/selenium/webdriver/remote/errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"xpath","selector":"//*[@id="main-content-area"]/div[2]/div[2]/div[1]/div/div/span[2]"}
+  (Session info: chrome=137.0.7151.55); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+#0 0x6527552ab29a <unknown>
+#1 0x652754d17040 <unknown>
+#2 0x652754d68990 <unknown>
+#3 0x652754d68b81 <unknown>
+#4 0x652754db7664 <unknown>
+#5 0x652754d8e6bd <unknown>
+#6 0x652754db4ace <unknown>
+#7 0x652754d8e463 <unknown>
+#8 0x652754d5ac55 <unknown>
+#9 0x652754d5b8c1 <unknown>
+#10 0x6527552701bb <unknown>
+#11 0x6527552740c9 <unknown>
+#12 0x652755258a39 <unknown>
+#13 0x652755274c78 <unknown>
+#14 0x65275523d6bf <unknown>
+#15 0x652755298948 <unknown>
+#16 0x652755298b26 <unknown>
+#17 0x6527552aa176 <unknown>
+#18 0x72f8a229caa4 <unknown>
+#19 0x72f8a2329c3c <unknown>
+

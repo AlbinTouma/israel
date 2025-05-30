@@ -10,6 +10,7 @@ from .models import WebPage
 from .database import Database
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from abc import ABC, abstractmethod
 
 class Browser:
     def __init__(self, scraper):
@@ -42,6 +43,7 @@ class Browser:
             self.close_cookie_banner()
             old_height = self.Scraper.driver.execute_script("return document.body.scrollHeight")
             button_clicked: bool = self.click_button()
+
             # Smooth scroll to bottom (not jumping)
             self.Scraper.driver.execute_script("""
                 window.scrollBy({
@@ -49,59 +51,32 @@ class Browser:
                     left: 0,
                     behavior: 'smooth'
                 });
+                            
             """)
-
-
-            time.sleep(1)
+            # window.scrollY
+            
+            time.sleep(3)
             new_height = self.Scraper.driver.execute_script("return document.body.scrollHeight")
             return new_height != old_height or button_clicked
         except Exception as e:
             print("ERROR IN SCROLL:", e)
 
+   
 
+class Scraper(ABC):
 
-
-class Scraper:
-
-    def __init__(self, scrape_object: WebPage, scraper_function, filename: str, logger):
+    def __init__(self, scrape_object: WebPage, filename: str):
         self.scrape_object = scrape_object
-        self.scraper_function = scraper_function
         self.filename = filename
-        self.logger = logger
+
+    @abstractmethod
+    def scrape_method(self):
+        pass
 
     def run(self):
         self.driver  = uc.Chrome(headless=False,use_subprocess=False)
         self.driver.get(self.scrape_object.link)
-        browser = Browser(self)
-        consecutive_change = 0
-        seen_links = set()
-
-        while True:
-            result: list[WebPage] | Exception 
-            stop_flag: bool 
-        
-            result, stop_flag = self.scraper_function(self.driver, self.scrape_object)
-            
-            if isinstance(result, Exception):
-                break
-            
-            if result:
-                deduped_list = []
-                for page in result:
-                    if page.link not in seen_links:
-                        deduped_list.append(page)
-                        seen_links.add(page.link)
-                               
-                Database.write_to_jsonl(deduped_list, self.filename)
-
-            if stop_flag:
-                break
-            
-            content_change: bool = browser.scroll_method()
-
-            if not content_change:
-                consecutive_change += 1
-                if consecutive_change >= 3:
-                    break
-
+        self.scrape_method()
         self.driver.quit()
+
+

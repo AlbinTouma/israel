@@ -96,7 +96,24 @@ class AljazeeraScraper():
         except Exception as e:
             self.errlog.exception(f"Exception type: {e}")
             return e, None
-    
+        
+    def collect_liveblog(self, driver, _: WebPage) -> tuple[list[WebPage], bool]:
+        try:
+            titles = driver.find_elements(By.XPATH, '//div[@class="card-live__content-area"]//h2')
+            content_blocks =  driver.find_elements(By.XPATH,'//div[contains(@class, "wysiwyg") and contains(@class, "wysiwyg--all-content")]')
+
+            result = []
+            for title, content_block in zip(titles, content_blocks):
+                try:
+                    p = content_block.find_elements(By.TAG_NAME, 'p')
+                    content = ''.join([i.text for i in p])
+                    result.append(WebPage(title=title.text, content=content, link=driver.current_url + title.text))
+                except:
+                    continue
+
+            return result,None
+        except Exception as e:
+            return e, None
 
     def run_collect_page_titles(self):
         homepage = WebPage(link='https://www.aljazeera.com/tag/israel-palestine-conflict/', media_type='homepage')
@@ -121,8 +138,13 @@ class AljazeeraScraper():
             page = WebPage(title='aljazeera', link=news_page['link'], media_type='program/newsfeed')
             Scraper(scrape_object=page, scraper_function=self.collect_newsfeed, filename='aljazeera_newsfeed', logger=self.errlog).run()
             time.sleep(randint(1, 3))
-
+        
+    def run_collect_liveblog(self):
+        dict_list: list[dict] = Database.read_jsonl(filename='aljazeera_links')
+        dict_list = [i for i in dict_list if i['media_type'] == 'news/liveblog']
+        page = WebPage(title='aljazeera', link="https://www.aljazeera.com/news/liveblog/2025/5/24/live-israeli-attacks-kill-76-no-aid-relief-yet-for-besieged-northern-gaza", media_type='news/liveblog')
+        Scraper(scrape_object=page, filename='aljazeera_liveblog', logger=self.errlog).run()
 
     def run(self):
         self.log.info('RUNNING JOB')
-        self.run_collect_newsfeed()
+        self.run_collect_liveblog()
