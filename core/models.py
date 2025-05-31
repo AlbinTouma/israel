@@ -2,6 +2,7 @@ import dataclasses as dc
 
 @dc.dataclass
 class WebPage:
+    unique_id: str = None
     website: str = None
     url: str = None
     link: str = None

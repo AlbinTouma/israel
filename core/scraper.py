@@ -69,6 +69,19 @@ class Scraper(ABC):
         self.scrape_object = scrape_object
         self.filename = filename
 
+    def safe_get_text(element, xpath):
+        try:
+            return element.find_element(By.XPATH, xpath).text
+        except Exception:
+            return None
+
+    def safe_get_elements(element, xpath):
+        try:
+            return element.find_elements(By.XPATH, xpath)
+        except Exception:
+            return []
+
+
     @abstractmethod
     def scrape_method(self):
         pass
@@ -78,5 +91,3 @@ class Scraper(ABC):
         self.driver.get(self.scrape_object.link)
         self.scrape_method()
         self.driver.quit()
-
-

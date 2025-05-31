@@ -2,10 +2,14 @@ import json
 from .models import WebPage
 from pathlib import Path
 import dataclasses as dc
-
+import hashlib
 
 class Database:
 
+    def generate_unique_id(title: str, url: str) -> str:
+        combined = (title + url).encode('utf-8')
+        unique_id = hashlib.md5(combined).hexdigest()  # or use sha256
+        return unique_id
 
     def check_if_exists(link: str, filename) -> bool:
         # This function is used to check if the link already exists in the database
