@@ -21,31 +21,6 @@ class IsraeliTimesScraper():
     def __init__(self):
         self.scraper = Scraper()
 
-    def scrape_article(self, driver, scrape_object: WebPage) -> WebPage:
-        """Scrapes title, content, date from the article page."""
-        try:
-            title = driver.find_element(By.XPATH, '//h1[@class="headline"]').text
-            content = driver.find_element(By.XPATH, '//div[@class="the-content"]').text
-            date = driver.find_element(By.XPATH, '//span[@class="date"]').text
-            article = WebPage(
-                website='timesofisrael',
-                title =title,
-                date=date,
-                link=scrape_object.link,
-                media_type=scrape_object.media_type,
-                content=content
-            )
-
-            if "Today" in article.date:
-                new_date = datetime.date.today().strftime("%Y-%m-%d")
-                article.date = new_date
-
-            return article
-        
-        except Exception as e:
-            return f"'Error': {e}, 'title', {scrape_object.title}, 'link', {scrape_object.link} \n"
-
-
     def collect_liveblog(self, driver, scrape_object: WebPage) -> list[WebPage]:
         """Scrapes title, content, date from the liveblog page."""
         try:
