@@ -15,26 +15,33 @@ from core.database import Database
 
 
 
-class Blogs(Scraper):
-    def collect_blogs(self, driver, scrape_object: WebPage) -> WebPage:
-        """Scrapes title, content, date from the blog page."""
+class Blog(Scraper):
+
+    def scrape_method(self):
+        """
+        Scrapes title, content, date from the blog page. Scrolling to the bottom opens new blog post. 
+        Also, first article should be visible in the dom so no need to scroll.
+        """
+
+        result = []
         try:
-            title = driver.find_element(By.XPATH, '//h1[@class="headline"]').text
-            content = driver.find_element(By.XPATH, '//div[@class="article-content"]').text
-            date = driver.find_element(By.XPATH, '//aside[@class="block cols1"]//div[@class="date"]').text
-            article = WebPage(
+            title = self.driver.find_element(By.XPATH, '//h1[@class="headline"]').text
+            unique_id = Database.generate_unique_id(title, self.driver.current_url)
+            content = self.driver.find_element(By.XPATH, '//div[@class="article-content"]').text
+            date = self.driver.find_element(By.XPATH, '//aside[@class="block cols1"]//div[@class="date"]').text
+
+            result.append(WebPage(
+                unique_id=unique_id,
                 website='timesofisrael',
                 title =title,
                 date=date,
-                link=scrape_object.link,
-                media_type=scrape_object.media_type,
+                link=None,
+                media_type="blog",
                 content=content
-            )  
-            return article
+            ))
             
         except Exception as e:
-            return f"'Error': {e}, 'title', {scrape_object.title}, 'link', {scrape_object.link} \n"
+            print(e)
 
-
-
- 
+        print(len(result))
+        Database.write_to_jsonl(result, 'test')
