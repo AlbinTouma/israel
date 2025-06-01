@@ -1,10 +1,17 @@
-from core import Scraper
-from core import WebPage
-import datetime
+from core import Database, Logger, WebPage, Scraper
+from datetime import datetime, date
 import time
-from time import randint
+from random import randint
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from core.scraper import Scraper
+import re
+from core.logger import Logger
+from core.scroll import ScrollBehaviour
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from core.database import Database
 
 
 
@@ -13,56 +20,6 @@ from selenium.webdriver.common.by import By
 class IsraeliTimesScraper():
     def __init__(self):
         self.scraper = Scraper()
-
-    def detect_type_article(self, link: str) -> str:
-        # This function is used to detect the type of article
-        if 'liveblog' in link:
-            return 'liveblog'
-        elif 'blogs.timesofisrael.com' in link:
-            return 'blog'
-        elif 'https://jewishchronicle.timesofisrael.com/' in link:
-            return 'jewishchronicle'
-        else:
-            return 'article'
-
-    def collect_page_titles(self, driver, _: WebPage) -> list[WebPage]:
-        result = []
-        h = driver.find_elements(By.XPATH, '//div[@class="headline"]/a')
-        already_scraped_count =  0
-        for link in h:
-            href = link.get_attribute('href')
-            if Database.check_if_exists(href, 'israeli_times_links'):
-                already_scraped_count += 1
-                continue
-
-            type_of_article = self.detect_type_article(href)
-
-            result.append(
-                WebPage(
-                website='timesofisrael',
-                url=driver.current_url,
-                date=None,
-                title=link.text,
-                link=href,
-                media_type=type_of_article,
-                content=None
-            )
-            )
-        
-        unique_domains = []
-        unique = set()
-        for r in result:
-            if r.link not in unique:
-                unique.add(r.link)
-                unique_domains.append(r)
-        print("Already scraped:", already_scraped_count)
-        
-        if len(result) == 0:
-            return Exception('Already scraped all articles on this page')
-        
-        print('Collecting:', len(result), 'articles from the page')
-
-        return unique_domains
 
     def scrape_article(self, driver, scrape_object: WebPage) -> WebPage:
         """Scrapes title, content, date from the article page."""
@@ -87,6 +44,7 @@ class IsraeliTimesScraper():
         
         except Exception as e:
             return f"'Error': {e}, 'title', {scrape_object.title}, 'link', {scrape_object.link} \n"
+
 
     def collect_liveblog(self, driver, scrape_object: WebPage) -> list[WebPage]:
         """Scrapes title, content, date from the liveblog page."""
