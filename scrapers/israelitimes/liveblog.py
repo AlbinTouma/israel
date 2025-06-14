@@ -86,5 +86,5 @@ class LiveBlog(Scraper):
                     print(f'Error at {title} -> {e}')
 
         if len(result) > 10:
-            Database.write_to_jsonl(result, 'test')
+            Database.write_to_jsonl(result, 'israelitimes_data')
             result = []

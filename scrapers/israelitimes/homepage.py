@@ -69,7 +69,7 @@ class HomePage(Scraper):
                 result.append(w)
 
             if len(result) > 10:
-                Database.write_to_jsonl(result, filename='test')
+                Database.write_to_jsonl(result, filename='israelitimes_links')
             
         print('Collecting:', len(result), 'articles self.driver the page')
  
