@@ -44,4 +44,4 @@ class Blog(Scraper):
             print(e)
 
         print(len(result))
-        Database.write_to_jsonl(result, 'test')
+        Database.write_to_jsonl(result, 'israelitimes_data')

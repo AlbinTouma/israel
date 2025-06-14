@@ -26,31 +26,34 @@ class ScrapeArticle(Scraper):
             if not scroll:
                 break
 
+            new_list = []
             try:
                 title = self.driver.find_element(By.XPATH, '//h1[@class="headline"]').text
                 unique_id = Database.generate_unique_id(title, self.driver.current_url),
                 content = self.driver.find_element(By.XPATH, '//div[@class="the-content"]').text
                 date = self.driver.find_element(By.XPATH, '//span[@class="date"]').text
+        
                 if unique_id in unique:
                     continue
                 unique.add(unique_id)
-
-                article = WebPage(
-                    unique_id=unique_id,
-                    website='timesofisrael',
-                    url=self.driver.current_url,
-                    title =title,
-                    date=date,
-                    link=None,
-                    media_type='article',
-                    content=content
-                )
-
-                result.append(article)
-            
+                new_list.append((unique_id, title, content, date))
             except Exception as e:
                 print(f"{e}")
 
-        Database.write_to_jsonl(result, 'test')
+                for unique_id, title, content, date in new_list:
+
+                    article = WebPage(
+                        unique_id=unique_id,
+                        website='timesofisrael',
+                        url=self.driver.current_url,
+                        title =title,
+                        date=date,
+                        media_type='article',
+                        content=content
+                    )
+
+                    result.append(article)
+            
+            Database.write_to_jsonl(result, 'israelitimes_data')
 
 

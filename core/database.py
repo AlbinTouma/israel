@@ -6,11 +6,13 @@ import hashlib
 
 class Database:
 
+    @staticmethod
     def generate_unique_id(title: str, url: str) -> str:
         combined = (title + url).encode('utf-8')
         unique_id = hashlib.md5(combined).hexdigest()  # or use sha256
         return unique_id
 
+    @staticmethod
     def check_if_exists(link: str, filename) -> bool:
         # This function is used to check if the link already exists in the database
         with open(f'../output/{filename}.jsonl', 'r') as f:
@@ -19,8 +21,8 @@ class Database:
                     return True
         return False
     
-
-    def read_jsonl(filename) -> list[dict]:
+    @staticmethod
+    def read_jsonl(filename: str) -> list[dict]:
         r = []
 
         with open(f"output/{filename}.jsonl", 'r') as reader:
@@ -33,7 +35,7 @@ class Database:
                         
         return r
     
-
+    @staticmethod
     def to_dict(obj: WebPage):
         return {
             "website": obj.website, 
@@ -45,7 +47,7 @@ class Database:
             "content": obj.content,
        }
 
-
+    @staticmethod
     def write_to_jsonl(result: list[WebPage] | WebPage | Exception, filename: str):
         """Writes the result of the scraper function to a jsonl file. 
         If result is a list, each element is written to the file. 
