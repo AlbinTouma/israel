@@ -99,6 +99,7 @@ class LiveBlog(Scraper):
         print('Broken li', broken_li)
         print('Exceptions', exception_count)
         for i in result:
+            Database.write_to_jsonl(i, 'aljazeera_data')
             print(i.unique_id, i.title)
 
 

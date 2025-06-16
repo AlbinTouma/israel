@@ -28,11 +28,14 @@ class IsraeliTimes:
         print("DONE")
 
     @staticmethod
-    def full_run():
+    def full_run(skip_titles: str):
+
+
         file = 'test_data'
-        IsraeliTimes.collect_titles()
-        js = Database.read_jsonl(filename='israelitimes_links')
+        if skip_titles == 'Yes':
+            IsraeliTimes.collect_titles()
         
+        js = Database.read_jsonl(filename='israelitimes_links')
         count = 0
         for i in js:
             page = WebPage(link=i['link'])
@@ -47,5 +50,4 @@ class IsraeliTimes:
                     scraper = scraper
                     scraper.run()
                     count += 1
-                    print(f'DONE: {count}')
-
+                    time.sleep(randint(1, 3))

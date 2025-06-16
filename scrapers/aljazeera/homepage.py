@@ -88,8 +88,7 @@ class HomePage(Scraper):
 
 
             if len(result) > 50:
-                print('Printing batch of 50 to articles table')
-                Database.write_to_jsonl(result, 'aljazeera_homepage')
+                Database.write_to_jsonl(result, 'aljazeera_links')
                 result = []
 
             if result_date < date(2024, 10, 5):

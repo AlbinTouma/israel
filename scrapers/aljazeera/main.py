@@ -7,144 +7,43 @@ from selenium.webdriver.common.by import By
 from core.scraper import Scraper
 import re
 from core.logger import Logger
+from .homepage import HomePage
+from .liveblog import LiveBlog
+from .news import News
+from .program_news import ProgramNews
+
+
 
 class AljazeeraScraper():
-    def __init__(self):
-        self.errlog = Logger().errlog
-        self.log = Logger().log
 
-    def convert_date(self, date_str: str) -> datetime.date:
-        for fmt in ("%d %B %Y", "%d %b %Y"):  # Try full and short month names
-            try:
-                return datetime.strptime(date_str, fmt).date()
-            except ValueError:
-                continue
-        raise ValueError(f"Date format not recognized: {date_str}")
-    
-    def identify_media_type(self, link: str) -> str:
-        link = link.removeprefix('https://www.aljazeera.com/')
-        match = re.search('(.*?)(?=/\d{4}/\d{1,2}/\d{1,2}/)',link)
-        if match:
-            return match.group(1)
-        else:
-            return None
-    
-    def collect_page_titles(self, driver, _: WebPage) -> tuple[list[WebPage], bool]:
-        try:
-            result_date = None
-            titles = driver.find_elements(By.XPATH, '//h3[@class="gc__title"]')
-            hrefs = driver.find_elements(By.XPATH, '//a[@class="u-clickable-card__link"]')
-            dates = driver.find_elements(By.XPATH, '//div[@class="date-simple"]//span[@aria-hidden="true"]')
+    @staticmethod
+    def collect_titles():
+        x = WebPage(website='aljazeera', link="https://www.aljazeera.com/tag/israel-palestine-conflict/")
+        scraper = HomePage(x, 'aljazeera_links')
+        scraper.run()
+        print("DONE")
 
-            result = []
-            for title, link, article_date in zip(titles, hrefs, dates):
-                href = link.get_attribute('href')
-                media_type = self.identify_media_type(href)
-                result_date = self.convert_date(article_date.text)
-                           
-                result.append(WebPage(
-                        website='aljazeera',
-                        url=driver.current_url,
-                        date=article_date.text,
-                        title=title.text,
-                        link=href,
-                        media_type=media_type
-                    ))
+    @staticmethod
+    def full_run(skip_titles: str):
 
-            if result_date < date(2024, 10, 5):
-                return result, True
+        file = 'aljazeera_data'
 
-            return result, False
-        except Exception as e:
-            return e, False
+        js = Database.read_jsonl(filename='aljazeera_links')
+        if skip_titles == "Yes":
+            AljazeeraScraper.collect_titles()
         
-    def collect_newspage(self, driver, _: WebPage) -> tuple[list[WebPage], bool] | tuple[Exception, bool]:
-        try:
-            h = driver.find_elements(By.XPATH, '//main//div[@aria-live="polite"]//p')
-            title = driver.find_element(By.XPATH, '//header//h1').text
-            date_simple = driver.find_element(By.XPATH, '//div[@class="date-simple"]//span[@aria-hidden]').text
+        count = 0
+        for i in js:
+            page = WebPage(link=i['link'])
+            opts = {
+                "news": News(page, file) , 
+                "news/liveblog": LiveBlog(page, file),
+                "program/newsfeed": ProgramNews(page, file)
+            }
 
-            strings = []
-            for i in h:
-                strings.append(i.text)
-                
-            content = ''.join(strings)
-
-            result = []
-            result.append(WebPage(website='aljazeera', url=driver.current_url, media_type='news', date=date_simple, title=title, content=content))
-            
-            return result, None
-        
-        except Exception as e:
-            self.errlog.exception(f'Exception type: {e}')
-            return e, None
-        
-
-    def collect_newsfeed(self, driver, _: WebPage) -> tuple[list[WebPage], bool] | tuple[Exception, bool]:
-        try:
-            title = driver.find_element(By.XPATH, '//main//h1').text
-            date_simple = driver.find_element(By.XPATH, '//*[@id="main-content-area"]/div[2]/div[2]/div[1]/div/div/span[2]').text
-            p = driver.find_elements(By.XPATH, '//*[@id="main-content-area"]/div[2]/p')
-            strings = []
-            for i in p:
-                strings.append(i.text)
-            content = ''.join(strings)
-
-            result = []
-            result.append(WebPage(website='aljazeera', url=driver.current_url, media_type='program/newsfeed', date=date_simple, title=title, content=content))
-            return result, None
-        except Exception as e:
-            self.errlog.exception(f"Exception type: {e}")
-            return e, None
-        
-    def collect_liveblog(self, driver, _: WebPage) -> tuple[list[WebPage], bool]:
-        try:
-            titles = driver.find_elements(By.XPATH, '//div[@class="card-live__content-area"]//h2')
-            content_blocks =  driver.find_elements(By.XPATH,'//div[contains(@class, "wysiwyg") and contains(@class, "wysiwyg--all-content")]')
-
-            result = []
-            for title, content_block in zip(titles, content_blocks):
-                try:
-                    p = content_block.find_elements(By.TAG_NAME, 'p')
-                    content = ''.join([i.text for i in p])
-                    result.append(WebPage(title=title.text, content=content, link=driver.current_url + title.text))
-                except:
-                    continue
-
-            return result,None
-        except Exception as e:
-            return e, None
-
-    def run_collect_page_titles(self):
-        homepage = WebPage(link='https://www.aljazeera.com/tag/israel-palestine-conflict/', media_type='homepage')
-        Scraper(scrape_object=homepage, scraper_function=self.collect_page_titles, filename='aljazeera_links').run()
-        time.sleep(randint(1, 3))
-
-   
-    def run_collect_newspage(self):
-        dict_list: list[dict] = Database.read_jsonl(filename='aljazeera_links')
-        dict_list = [i for i in dict_list if i['media_type'] == 'news']
-        for news_page in dict_list:
-            self.log.info(f'Running job: {news_page["link"]}')
-            page = WebPage(title='aljazeera', link=news_page['link'], media_type='news')
-            Scraper(scrape_object=page, scraper_function=self.collect_newspage, filename='aljazeera').run()
-    
-    def run_collect_newsfeed(self):
-        dict_list: list[dict] = Database.read_jsonl(filename='aljazeera_links')
-        dict_list = [i for i in dict_list if i['media_type'] == 'program/newsfeed']
-
-        for news_page in dict_list:
-            self.log.info(f'Running job: {news_page["link"]}')
-            page = WebPage(title='aljazeera', link=news_page['link'], media_type='program/newsfeed')
-            Scraper(scrape_object=page, scraper_function=self.collect_newsfeed, filename='aljazeera_newsfeed', logger=self.errlog).run()
-            time.sleep(randint(1, 3))
-        
-    def run_collect_liveblog(self):
-        dict_list: list[dict] = Database.read_jsonl(filename='aljazeera_links')
-        dict_list = [i for i in dict_list if i['media_type'] == 'news/liveblog']
-        page = WebPage(title='aljazeera', link="https://www.aljazeera.com/news/liveblog/2025/5/24/live-israeli-attacks-kill-76-no-aid-relief-yet-for-besieged-northern-gaza", media_type='news/liveblog')
-        Scraper(scrape_object=page, filename='aljazeera_liveblog', logger=self.errlog).run()
-
-    def run(self):
-        self.log.info('RUNNING JOB')
-        self.run_collect_liveblog()
+            for key, scraper in opts.items():
+                if i['media_type'] == key:
+                    scraper = scraper
+                    scraper.run()
+                    count += 1
+                    time.sleep(randint(1, 3))
