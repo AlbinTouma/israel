@@ -35,6 +35,7 @@ class HomePage(Scraper):
     def scrape_method(self):
         result = []
         unique_elements = set()
+        time.sleep(3)
         while True:
             scroll = ScrollBehaviour.scroll_full_page(self.driver)
             if not scroll:

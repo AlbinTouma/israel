@@ -46,6 +46,6 @@ class ProgramNews(Scraper):
             if not scroll:
                 break
         print(result)
-        Database.write_to_jsonl(result, filename='test')
+        Database.write_to_jsonl(result, filename='aljazeera_data')
 
 

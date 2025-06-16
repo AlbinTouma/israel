@@ -16,6 +16,8 @@ from core import Database
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.model_selection import cross_val_score
 import eli5
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+from .ml_models import classification_models
 
 df = pd.read_csv('annotations/annotated.csv')
 
@@ -35,6 +37,27 @@ titles_train_vec = vectorizer.fit_transform(titles_train)
 titles_test_vec = vectorizer.transform(titles_test)
 
 
+def compare_models(models: dict):
+    accuracy, precision, recall = {}, {}, {}
+
+    for key in models.keys():
+        models[key].fit(titles_train_vec.toarray(), labels_encoded_train)
+        predictions = models[key].predict(titles_test_vec.toarray())
+        accuracy[key] = accuracy_score(predictions, labels_encoded_test)
+        precision[key] = precision_score(predictions, labels_encoded_test)
+        recall[key] = recall_score(predictions, labels_encoded_test)
+
+    df_model = pd.DataFrame(index=models.keys(), columns=['Accuracy', 'Precision', 'Recall'])
+    df_model['Accuracy'] = accuracy.values()
+    df_model['Precision'] = precision.values()
+    df_model['Recall'] = recall.values()
+    print(df_model)
+
+compare_models(classification_models)
+
+quit()
+
+
 # Logistic Regression Model
 classifier = LogisticRegression(class_weight='balanced')
 classifier.fit(titles_train_vec, labels_encoded_train)
@@ -44,7 +67,8 @@ print(classification_report(labels_encoded_test, predictions, target_names=le.cl
 
 # Docs for confusion matrix: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html#sklearn.metrics.ConfusionMatrixDisplay
 cm = confusion_matrix(labels_encoded_test, predictions, labels=classifier.classes_)
-cm_display = ConfusionMatrixDisplay(cm).plot()
+cm_display = ConfusionMatrixDisplay(cm, display_labels=['irrelevant', 'relevant']).plot()
+
 
 # Explain weights tells me what words push towards relevant/irrelevant
 eli5.explain_weights(classifier, vec=vectorizer) #show=['targets', 'description', 'feature_importances'])classifier.coef_	
@@ -72,7 +96,7 @@ for title in v:
     title_v = vectorizer.transform([title])
     y_pred = classifier.predict(title_v)
     y_prob = classifier.predict_proba(title_v)
-    with open('results.csv', 'a') as f:
+    with open('annotations/results.csv', 'a') as f:
         f.write(f'{title}\t{le.inverse_transform(y_pred)}\t{y_prob} \n')
 
     print(title, 'Predicted label', le.inverse_transform(y_pred), y_prob)

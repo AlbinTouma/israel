@@ -46,6 +46,6 @@ class News(Scraper):
                 print('EXCEPTION')
 
         print(result)
-        Database.write_to_jsonl(result, filename='test')
+        Database.write_to_jsonl(result, filename='aljazeera_data')
 
 

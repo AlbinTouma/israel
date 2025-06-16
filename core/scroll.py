@@ -14,6 +14,7 @@ from abc import ABC, abstractmethod
 
 class ScrollBehaviour:
     
+    @staticmethod
     def close_cookie_banner(driver):
         driver.execute_script("""
             var banner = document.getElementById('onetrust-group-container');
@@ -22,6 +23,7 @@ class ScrollBehaviour:
             if (overlay) overlay.style.display = 'none';
         """)
 
+    @staticmethod
     def scroll_full_page(driver):
             old_height = driver.execute_script("return document.body.scrollHeight")
             driver.execute_script("""
@@ -37,6 +39,7 @@ class ScrollBehaviour:
             new_height = driver.execute_script("return document.body.scrollHeight")
             return new_height != old_height
 
+    @staticmethod
     def scroll_into_view(driver, element):
         try:
             driver.execute_script("""arguments[0].scrollIntoView({
@@ -46,6 +49,7 @@ class ScrollBehaviour:
         except Exception as e:
             print(f"REACHED END OF INFINITY PAGE \n {e}")
 
+    @staticmethod
     def scroll_into_view_slow(driver, element, step=3, delay=0.05):
         try:
             driver.execute_script("""
