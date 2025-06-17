@@ -12,7 +12,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from core.database import Database
-
+from core.scroll import ScrollBehaviour
 
 
 class Blog(Scraper):
@@ -20,9 +20,8 @@ class Blog(Scraper):
     def scrape_method(self):
         """
         Scrapes title, content, date from the blog page. Scrolling to the bottom opens new blog post. 
-        Also, first article should be visible in the dom so no need to scroll.
+        The First blog post should be visible in the dom so no need to scroll.
         """
-
         result = []
         try:
             title = self.driver.find_element(By.XPATH, '//h1[@class="headline"]').text
@@ -43,5 +42,7 @@ class Blog(Scraper):
         except Exception as e:
             print(e)
 
-        print(len(result))
+        print(result)
         Database.write_to_jsonl(result, 'israelitimes_data')
+
+

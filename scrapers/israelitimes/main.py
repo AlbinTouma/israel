@@ -19,35 +19,39 @@ from .blogs import Blog
 
 
 class IsraeliTimes:
+    def __init__(self, skip_titles, driver):
+        self.skip_titles = skip_titles
+        self.driver = driver
 
-    @staticmethod
-    def collect_titles():
+    def collect_titles(self):
         x = WebPage(website='israelitimes', link="https://www.timesofisrael.com/")
-        scraper = HomePage(x, 'test')
+        scraper = HomePage(x, 'test', self.driver)
         scraper.run()
         print("DONE")
 
-    @staticmethod
-    def full_run(skip_titles: str):
+    def collect_blog(self):
+        x = Blog(WebPage(link="https://blogs.timesofisrael.com/oct-7-dawn-french-and-the-dark-arts-of-amnesia-and-illusion/"), 'test', self.driver)
+        x.run()
+
+    def full_run(self):
 
 
         file = 'test_data'
-        if skip_titles == 'Yes':
-            IsraeliTimes.collect_titles()
+        if self.skip_titles == 'Yes':
+            IsraeliTimes.collect_titles(self)
         
         js = Database.read_jsonl(filename='israelitimes_links')
         count = 0
+        opts = None
         for i in js:
             page = WebPage(link=i['link'])
             opts = {
-                "article": ScrapeArticle(page, file) , 
-                "liveblog": LiveBlog(page, file),
-                "blog": Blog(page, file)
+                "article": ScrapeArticle(page, file, self.driver) , 
+                "liveblog": LiveBlog(page, file, self.driver),
+                "blog": Blog(page, file, self.driver)
             }
-
             for key, scraper in opts.items():
                 if i['media_type'] == key:
-                    scraper = scraper
                     scraper.run()
                     count += 1
                     time.sleep(randint(1, 3))

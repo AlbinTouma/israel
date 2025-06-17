@@ -5,16 +5,16 @@ from core import Logger
 import dataclasses as dc
 from core import WebPage
 import ast
-
-#page = WebPage(title='aljazeera',link="https://blogs.timesofisrael.com/an-after-613-enigma/", media_type='blog')
-
+import undetected_chromedriver as uc
+ 
 
 
 print('\nCollect titles?\n')
-user_input = input("Scrape titles: Yes or No")
+user_input = input("Scrape titles: Yes or No \t")
 
-#scraper = IsraeliTimes()
-#scraper.full_run(skip_titles=user_input)
+driver  = uc.Chrome(headless=False,use_subprocess=False)
+scraper = IsraeliTimes(user_input, driver)
+scraper.full_run()
 
-AljazeeraScraper = AljazeeraScraper()
-AljazeeraScraper.full_run(skip_titles=user_input)
+#AljazeeraScraper = AljazeeraScraper()
+#AljazeeraScraper.full_run(skip_titles=user_input)

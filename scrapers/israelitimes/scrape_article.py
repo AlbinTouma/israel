@@ -29,10 +29,9 @@ class ScrapeArticle(Scraper):
             new_list = []
             try:
                 title = self.driver.find_element(By.XPATH, '//h1[@class="headline"]').text
-                unique_id = Database.generate_unique_id(title, self.driver.current_url),
+                unique_id = Database.generate_unique_id(title, self.driver.current_url)
                 content = self.driver.find_element(By.XPATH, '//div[@class="the-content"]').text
                 date = self.driver.find_element(By.XPATH, '//span[@class="date"]').text
-        
                 if unique_id in unique:
                     continue
                 unique.add(unique_id)
@@ -40,20 +39,21 @@ class ScrapeArticle(Scraper):
             except Exception as e:
                 print(f"{e}")
 
-                for unique_id, title, content, date in new_list:
+            for unique_id, title, content, date in new_list:
 
-                    article = WebPage(
-                        unique_id=unique_id,
-                        website='timesofisrael',
-                        url=self.driver.current_url,
-                        title =title,
-                        date=date,
-                        media_type='article',
-                        content=content
-                    )
+                article = WebPage(
+                    unique_id=unique_id,
+                    website='timesofisrael',
+                    url=self.driver.current_url,
+                    title =title,
+                    date=date,
+                    media_type='article',
+                    content=content
+                )
 
-                    result.append(article)
-            
+                result.append(article)
+
+            print(result)
             Database.write_to_jsonl(result, 'israelitimes_data')
 
 

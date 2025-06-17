@@ -11,71 +11,20 @@ from .database import Database
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from abc import ABC, abstractmethod
-
-class Browser:
-    def __init__(self, scraper):
-        self.Scraper = scraper
-    
-    def close_cookie_banner(self):
-        self.Scraper.driver.execute_script("""
-            var banner = document.getElementById('onetrust-group-container');
-            var overlay = document.getElementById('onetrust-consent-sdk');
-            if (banner) banner.style.display = 'none';
-            if (overlay) overlay.style.display = 'none';
-        """)
-    
-    def click_button(self):
-        try:
-            button = self.Scraper.driver.find_element(By.XPATH, '//button[@data-testid="show-more-button" and contains(@class, "show-more-button") and contains(@class, "big-margin")]')        
-        except Exception as e:
-            return False
-            
-        if button.is_displayed() and button.is_enabled():
-            self.Scraper.driver.execute_script("arguments[0].click();", button)
-            time.sleep(1)
-            return True
-        return False
-
-    
-    def scroll_method(self) -> bool:
-        '''Returns True if button is clicked or new height is not the same as old height'''
-        try:
-            self.close_cookie_banner()
-            old_height = self.Scraper.driver.execute_script("return document.body.scrollHeight")
-            button_clicked: bool = self.click_button()
-
-            # Smooth scroll to bottom (not jumping)
-            self.Scraper.driver.execute_script("""
-                window.scrollBy({
-                    top: document.body.scrollHeight - window.scrollY,
-                    left: 0,
-                    behavior: 'smooth'
-                });
-                            
-            """)
-            # window.scrollY
-            
-            time.sleep(3)
-            new_height = self.Scraper.driver.execute_script("return document.body.scrollHeight")
-            return new_height != old_height or button_clicked
-        except Exception as e:
-            print("ERROR IN SCROLL:", e)
-
    
-
 class Scraper(ABC):
-
-    def __init__(self, scrape_object: WebPage, filename: str):
+    def __init__(self, scrape_object: WebPage, filename: str, driver=None):
         self.scrape_object = scrape_object
         self.filename = filename
+        self.driver = driver
 
-    def safe_get_text(element, xpath):
+    def safe_get_text(self, element, xpath):
         try:
             return element.find_element(By.XPATH, xpath).text
         except Exception:
             return None
 
-    def safe_get_elements(element, xpath):
+    def safe_get_elements(self, element, xpath):
         try:
             return element.find_elements(By.XPATH, xpath)
         except Exception:
@@ -87,7 +36,5 @@ class Scraper(ABC):
         pass
 
     def run(self):
-        self.driver  = uc.Chrome(headless=False,use_subprocess=False)
         self.driver.get(self.scrape_object.link)
         self.scrape_method()
-        self.driver.quit()
