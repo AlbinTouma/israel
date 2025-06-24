@@ -39,7 +39,6 @@ class Database:
     def to_dict(obj: WebPage):
         return {
             "website": obj.website, 
-            "url": obj.url,
             "title": obj.title,
             "date": obj.date,
             "media_type": obj.media_type,

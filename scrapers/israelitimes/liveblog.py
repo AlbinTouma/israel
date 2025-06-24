@@ -73,10 +73,10 @@ class LiveBlog(Scraper):
                     result.append(WebPage(
                         unique_id=unique_id,
                         website='timesofisrael',
-                        url=self.driver.current_url,
+                        link=self.driver.current_url,
                         title =title,
                         date=epoch,
-                        link=href,
+                        #link=href,
                         media_type='liveblog',
                         content=content
                     ))

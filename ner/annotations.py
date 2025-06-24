@@ -1,11 +1,12 @@
+from core.database import Database
+import json
 
-def create_annotation(df):
+df = Database.read_jsonl('aljazeera_data')
 
-    df = Database.read_jsonl('israelitimes_data')
-    for i in df:
-       with open('annotations/text_class.text', 'a') as fp:
-            title = i.get('title')
-            if title:
-                fp.write(f'{title},\n')
+d = []
+for i in df:
+    d.append({"data": {"title": i.get('title'), "textlabel": i.get('content')}})
 
+with open('annotations/o.json', 'w') as fp:
+    r = json.dump(d, fp)
 

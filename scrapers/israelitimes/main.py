@@ -16,7 +16,8 @@ from .homepage import HomePage
 from .scrape_article import ScrapeArticle
 from .liveblog import LiveBlog
 from .blogs import Blog
-
+import psutil
+from core import DriverClass
 
 class IsraeliTimes:
     def __init__(self, skip_titles, driver):
@@ -34,24 +35,49 @@ class IsraeliTimes:
         x.run()
 
     def full_run(self):
-
-
         file = 'test_data'
+
         if self.skip_titles == 'Yes':
             IsraeliTimes.collect_titles(self)
-        
         js = Database.read_jsonl(filename='israelitimes_links')
+
         count = 0
-        opts = None
+        driver_count = 0
+        page_limit = 30
+
         for i in js:
             page = WebPage(link=i['link'])
+            if count > 0 and count % page_limit == 0:
+                print("Restarting Chrome driver....\n")
+                self.driver.quit()
+                self.driver = DriverClass().get_stealth_driver()
+                driver_count += 1
+
+            if not DriverClass.is_driver_alive(self.driver):
+                print("Chrome driver is dead")
+                try:
+                    self.driver.quit()
+                except Exception as e:
+                    pass
+                self.driver = DriverClass().get_stealth_driver()
+                time.sleep(2)
+
             opts = {
                 "article": ScrapeArticle(page, file, self.driver) , 
                 "liveblog": LiveBlog(page, file, self.driver),
                 "blog": Blog(page, file, self.driver)
             }
+
             for key, scraper in opts.items():
                 if i['media_type'] == key:
-                    scraper.run()
-                    count += 1
-                    time.sleep(randint(1, 3))
+                    try:
+                        scraper.run()
+                        count += 1
+                    except Exception as e:
+                        print(i['link'], e) 
+
+                    ##pid = self.driver.service.process.pid
+                    #print(psutil.Process(pid).memory_info().rss/1024 ** 2, "MB used")
+
+            print(count)
+            time.sleep(randint(1, 3))

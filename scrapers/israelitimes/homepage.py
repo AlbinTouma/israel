@@ -22,14 +22,15 @@ class HomePage(Scraper):
         mappings = {
                 'liveblog': 'liveblog',
                 'https://blogs.timesofisrael.com/': 'blog',
-                'https://jewishchronicle.timesofisrael.com/': 'jewishchronicle'
+                'https://jewishchronicle.timesofisrael.com/': 'jewishchronicle',
+                'https://njjewishnews.timesofisrael.com/': 'new_jersey_news',
+                'https://www.timesofisrael.com/': 'article'
         }
 
         for key, value in mappings.items():
             if key in link:
                 return value
 
-        return 'article'
 
 
     def scrape_method(self):
@@ -45,23 +46,17 @@ class HomePage(Scraper):
 
             new_list = []
             for a in a_elements:
-                title = a.text
-                unique_id = Database.generate_unique_id(title, self.driver.current_url)
-
-                if unique_id in unique_elements:
+                href = a.get_attribute('href')
+                if href in unique_elements:
                     continue
-                unique_elements.add(unique_id)
-                new_list.append((a, unique_id, title))
+                unique_elements.add(href)
+                new_list.append((a, href))
 
-            for a, unique_id, title in new_list:
-                href = a.get_attribute("href")
+            for a, href in new_list:
                 type_of_article = self.detect_type_article(href)
-
                 w =  WebPage(
-                    unique_id=unique_id,
-                    title=title,
+                #    unique_id=unique_id,
                     website='timesofisrael',
-                    url=self.driver.current_url,
                     link=href,
                     date=None,
                     media_type=type_of_article,
@@ -71,6 +66,7 @@ class HomePage(Scraper):
 
             if len(result) > 10:
                 Database.write_to_jsonl(result, filename='israelitimes_links')
+                result = []
             
         print('Collecting:', len(result), 'articles self.driver the page')
  

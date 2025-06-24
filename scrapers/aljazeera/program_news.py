@@ -39,7 +39,7 @@ class ProgramNews(Scraper):
                     strings.append(i.text)
                 content = ''.join(strings)
 
-                result.append(WebPage(unique_id=unique_id, website='aljazeera', url=self.driver.current_url, media_type='program/newsfeed', date=date_simple, title=title, content=content))
+                result.append(WebPage(unique_id=unique_id, website='aljazeera', link=self.driver.current_url, media_type='program/newsfeed', date=date_simple, title=title, content=content))
             except Exception as e:
                 print(e)
             

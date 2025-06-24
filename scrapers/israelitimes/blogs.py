@@ -34,15 +34,15 @@ class Blog(Scraper):
                 website='timesofisrael',
                 title =title,
                 date=date,
-                link=None,
+                link=self.driver.current_url,
                 media_type="blog",
                 content=content
             ))
-            
+
+            print(unique_id, title)
         except Exception as e:
             print(e)
 
-        print(result)
         Database.write_to_jsonl(result, 'israelitimes_data')
 
 

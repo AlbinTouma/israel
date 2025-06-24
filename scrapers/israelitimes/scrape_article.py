@@ -14,8 +14,27 @@ from selenium.webdriver.support import expected_conditions as EC
 from core.database import Database
 
 class ScrapeArticle(Scraper):
-
     def scrape_method(self):
+        try:
+            title = self.driver.find_element(By.XPATH, '//h1[@class="headline"]').text
+            unique_id = Database.generate_unique_id(title, self.driver.current_url)
+            content = self.driver.find_element(By.XPATH, '//div[@class="the-content"]').text
+            date = self.driver.find_element(By.XPATH, '//span[@class="date"]').text
+            article = [ WebPage(
+                    unique_id=unique_id,
+                    website='timesofisrael',
+                    link=self.driver.current_url,
+                    title =title,
+                    date=date,
+                    media_type="article",
+                    content=content
+                )]
+
+            Database.write_to_jsonl(article, 'israelitimes_data')
+        except Exception as e:
+            print(e)
+
+    def scrape_method_scroll(self):
         """Scrapes title, content, date from the article page."""
         result = []
         unique = set()
@@ -44,7 +63,7 @@ class ScrapeArticle(Scraper):
                 article = WebPage(
                     unique_id=unique_id,
                     website='timesofisrael',
-                    url=self.driver.current_url,
+                    link=self.driver.current_url,
                     title =title,
                     date=date,
                     media_type='article',
@@ -53,7 +72,7 @@ class ScrapeArticle(Scraper):
 
                 result.append(article)
 
-            print(result)
+                print(unique_id, title)
             Database.write_to_jsonl(result, 'israelitimes_data')
 
 

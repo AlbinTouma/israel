@@ -83,7 +83,7 @@ class LiveBlog(Scraper):
                     w = WebPage(
                            unique_id=unique_id, 
                            title=title,
-                           url=self.driver.current_url, 
+                           link=self.driver.current_url, 
                            content=content, 
                            date=date,
                            media_type='news/liveblog'

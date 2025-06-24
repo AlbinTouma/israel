@@ -15,35 +15,36 @@ from .program_news import ProgramNews
 
 
 class AljazeeraScraper():
+    def __init__(self, skip_titles, driver):
+        self.skip_titles = skip_titles
+        self.driver  = driver
 
-    @staticmethod
-    def collect_titles():
+    def collect_titles(self):
         x = WebPage(website='aljazeera', link="https://www.aljazeera.com/tag/israel-palestine-conflict/")
         scraper = HomePage(x, 'aljazeera_links')
         scraper.run()
         print("DONE")
 
-    @staticmethod
-    def full_run(skip_titles: str):
+    def full_run(self):
 
         file = 'aljazeera_data'
-
         js = Database.read_jsonl(filename='aljazeera_links')
-        if skip_titles == "Yes":
-            AljazeeraScraper.collect_titles()
+        if self.skip_titles == "Yes":
+            self.collect_titles()
+
+        js = js[586:]
         
         count = 0
         for i in js:
             page = WebPage(link=i['link'])
             opts = {
-                "news": News(page, file) , 
-                "news/liveblog": LiveBlog(page, file),
-                "program/newsfeed": ProgramNews(page, file)
+                "news": News(page, file, self.driver) , 
+                "news/liveblog": LiveBlog(page, file, self.driver),
+                "program/newsfeed": ProgramNews(page, file, self.driver)
             }
 
             for key, scraper in opts.items():
                 if i['media_type'] == key:
-                    scraper = scraper
                     scraper.run()
                     count += 1
                     time.sleep(randint(1, 3))

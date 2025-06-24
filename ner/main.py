@@ -19,7 +19,7 @@ import eli5
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from .ml_models import classification_models
 
-df = pd.read_csv('annotations/annotated.csv')
+df = pd.read_csv('annotations/relevancy_train.csv')
 
 df['sentiment'].value_counts()
 
@@ -29,7 +29,7 @@ le.fit(df['sentiment'])
 labels_encoded = le.transform(df['sentiment'])
 
 # Create training,  testing
-titles_train, titles_test, labels_encoded_train, labels_encoded_test = train_test_split(df['text'], labels_encoded, test_size=0.25, stratify=labels_encoded)
+titles_train, titles_test, labels_encoded_train, labels_encoded_test = train_test_split(df['textlabel'], labels_encoded, test_size=0.25, stratify=labels_encoded)
 
 # Bag of Words
 vectorizer = CountVectorizer(lowercase=False)
@@ -55,8 +55,6 @@ def compare_models(models: dict):
 
 compare_models(classification_models)
 
-quit()
-
 
 # Logistic Regression Model
 classifier = LogisticRegression(class_weight='balanced')
@@ -80,13 +78,28 @@ plt.bar([0,1,2,3,4], height=scores)
 plt.title("Cross Validation", loc='left')
 plt.xlabel('Iteration')
 plt.ylabel('Scores of estimator')
+plt.show()
+
+f = open('annotations/o.json')
+f = json.load(f)
+
+
+data = pd.json_normalize(f)
+v = data['data.textlabel']
+
+for title in v:
+    title_v = vectorizer.transform([title])
+    y_pred = classifier.predict(title_v)
+    y_prob = classifier.predict_proba(title_v)
+    with open('annotations/results_content.csv', 'a') as f:
+        f.write(f'{title}\t{le.inverse_transform(y_pred)}\t{y_prob} \n')
+
+    print(title, 'Predicted label', le.inverse_transform(y_pred), y_prob)
 
 
 
-
-
-
-with open('output/israelitimes_data.jsonl', 'r') as f:
+quit()
+with open('output/o.jsonl', 'r') as f:
     lines = f.readlines() 
 
 v = [json.loads(l) for l in lines]

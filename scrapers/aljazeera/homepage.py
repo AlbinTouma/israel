@@ -76,7 +76,6 @@ class HomePage(Scraper):
                     
                     result.append(WebPage(
                             website='aljazeera',
-                            url=self.driver.current_url,
                             date=date_span,
                             title=title,
                             link=href,

@@ -18,19 +18,6 @@ class Scraper(ABC):
         self.filename = filename
         self.driver = driver
 
-    def safe_get_text(self, element, xpath):
-        try:
-            return element.find_element(By.XPATH, xpath).text
-        except Exception:
-            return None
-
-    def safe_get_elements(self, element, xpath):
-        try:
-            return element.find_elements(By.XPATH, xpath)
-        except Exception:
-            return []
-
-
     @abstractmethod
     def scrape_method(self):
         pass
