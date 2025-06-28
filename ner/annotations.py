@@ -1,3 +1,5 @@
+# This script formats the scraped articles in a csv that label-studio can accept.
+
 from core.database import Database
 import json
 
