@@ -1,22 +1,24 @@
 from sklearn.preprocessing import LabelEncoder
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
 
 class VectorizeText():
+    def __init__(self, vectorizer):
+        self.vectorizer = vectorizer
+        self.label_encoder = LabelEncoder()
 
-    BagOfWords = CountVectorizer(lowercase=False)
-
-    def __init__(self, data, labels):
-        self.labels = labels
-        self.data = data
-        self.encoder = LabelEncoder()
-
-    def encode_label(self):
+    def encode_label(self, labels):
         """Encode labels from categorical to int"""
+        return self.label_encoder.fit_transform(labels)
 
-        self.encoder.fit(self.labels)
-        encoded = self.encoder.transform(self.labels)
-        self.labels = encoded
+    def split_and_vectorize(self,texts,labels,test_size=0.25, stratify=True):
+        stratify_labels = labels if stratify else None
 
-    def create_bag_of_words(self,train, test):
-        return(VectorizeText.BagOfWords.fit_transform(train), VectorizeText.BagOfWords.transform(test))
-
+        X_train, X_test, y_train, y_test = train_test_split(
+        texts,
+        labels,
+        test_size=test_size,
+        stratify=stratify_labels
+        )
+        X_train_vect = self.vectorizer.fit_transform(X_train)
+        X_test_vect = self.vectorizer.transform(X_test)
+        return X_train_vect, X_test_vect, y_train, y_test

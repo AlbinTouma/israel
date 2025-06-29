@@ -1,79 +1,76 @@
-import numpy as np
-from pandas.core.common import random_state
-from collections import Counter
 import json
-import tensorflow as tf
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
-import matplotlib.pyplot as plt
-import tensorflow as tf
-from core import Database
 from .ml_models import MLModelling
 from .vectorize import VectorizeText
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from nltk.corpus import stopwords
 
-def read_annotated_data():
-    return pd.DataFrame.dropna(pd.read_csv('annotations/annotated.csv'))
+stopwords = stopwords.words('english')
+models = {
+        "Logistic Regression": LogisticRegression(), 
+        "Support Vector Machines": LinearSVC(), 
+        "Decision Trees": DecisionTreeClassifier(), 
+        "Random Forest Classifier": RandomForestClassifier(), 
+        "Naive Bayes": GaussianNB(), 
+        "K-Nearest Neighbor": KNeighborsClassifier()
+}
 
-def split_data(data, labels):
-    return train_test_split(data, labels, test_size=0.25, stratify=labels)
+vectorizers = {
+    "BagOfWords": CountVectorizer(lowercase=True,stop_words=stopwords, ngram_range=(1,2)),
+    "TFIDF": TfidfVectorizer(lowercase=True, stop_words=stopwords, ngram_range=(1,2))
+}
 
+df = pd.DataFrame.dropna(pd.read_csv('annotations/annotated.csv'))
+text = df['textlabel']
+labels = df['sentiment']
 
-df = read_annotated_data()
-vec_cls = VectorizeText(df['textlabel'], df['sentiment'])
-vec_cls.encode_label()
-training_data, testing_data, training_labels, testing_labels = split_data(vec_cls.data, vec_cls.labels) 
-training_data, testing_data = vec_cls.create_bag_of_words(training_data, testing_data)
+all_results = []
+for vec_name, vec_instance in vectorizers.items():
 
-ML_cls = MLModelling(training_data, training_labels, testing_data, testing_labels)
-ML_cls.compare_models()
-ML_cls.classification_report(vec_cls)
+    vec = VectorizeText(vec_instance)
+    encoded_labels =vec.encode_label(labels)
 
+    X_train, X_test, y_train, y_test = vec.split_and_vectorize(text, encoded_labels)
+    #Train models
+    ml = MLModelling(models)
+    results_df = ml.train_and_evaluate(X_train, y_train, X_test, y_test)
 
-quit()
+    for _, row in results_df.iterrows():
+        all_results.append({
+            "Vectorizer": vec_name,
+            "Classifier": row['Model'],
+            "Accuracy": row['Accuracy'],
+            "F1": row['F1'],
+            "Recall": row['Recall']
+        })
 
-# Cross validation scores
-scores = cross_val_score(classifier, titles_train_vec, labels_encoded_train, cv=5, scoring='f1') 
-plt.bar([0,1,2,3,4], height=scores)
-plt.title("Cross Validation", loc='left')
-plt.xlabel('Iteration')
-plt.ylabel('Scores of estimator')
-plt.show()
+x = vec.vectorizer.get_feature_names_out()
+coef = ml.trained_models['Logistic Regression'].coef_[0]
+w = pd.DataFrame({"Model": "Logsitic Regression", "Word": x, "Weight": coef}).sort_values(by='Weight', ascending=False)
+print(f'{w.head(10)} \n {w.tail(10)}')
 
-f = open('annotations/o.json')
-f = json.load(f)
+final_df = pd.DataFrame(all_results)
+print(final_df)
 
+data = pd.read_json('output/aljazeera_data.jsonl', lines=True)
+text = data['content']
+X_new = vec.vectorizer.transform(text)
+trained_classifier = ml.trained_models['Decision Trees']
+pred = trained_classifier.predict(X_new)
 
-data = pd.json_normalize(f)
-v = data['data.textlabel']
-
-for title in v:
-    title_v = vectorizer.transform([title])
-    y_pred = classifier.predict(title_v)
-    y_prob = classifier.predict_proba(title_v)
-    with open('annotations/results_content.csv', 'a') as f:
-        f.write(f'{title}\t{le.inverse_transform(y_pred)}\t{y_prob} \n')
-
-   # print(title, 'Predicted label', le.inverse_transform(y_pred), y_prob)
-
-
-
-quit()
-with open('output/o.jsonl', 'r') as f:
-    lines = f.readlines() 
-
-v = [json.loads(l) for l in lines]
-v = [l.get('title') for l in v]
-
-for title in v:
-    title_v = vectorizer.transform([title])
-    y_pred = classifier.predict(title_v)
-    y_prob = classifier.predict_proba(title_v)
-    with open('annotations/results.csv', 'a') as f:
-        f.write(f'{title}\t{le.inverse_transform(y_pred)}\t{y_prob} \n')
-
-
+r = pd.DataFrame({'title': data['title'], 'content': text, "pred": pred, "link": data['link'], "media_type": data['media_type']})
+r = r[r['pred'] == 1]
+r.to_json('result.json', orient='records')
+print(r)
 
