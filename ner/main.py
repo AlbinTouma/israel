@@ -2,7 +2,7 @@ import json
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 from .ml_models import MLModelling
@@ -15,8 +15,84 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from nltk.corpus import stopwords
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+import pandas as pd
+from dataclasses import dataclass
+from sklearn.metrics import classification_report
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+from sklearn.model_selection import cross_val_score
+import eli5
+import matplotlib.pyplot as plt
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+    classification_report,
+)
+
+
+
+
+
+df = pd.DataFrame.dropna(pd.read_csv('annotations/annotated.csv'))
+text = df['textlabel']
+labels = df['sentiment']
+
+label_encoder = LabelEncoder()
+labels_enc = label_encoder.fit_transform(labels)
+
+X_train, X_test, y_train, y_test = train_test_split(text, labels_enc, test_size=0.25)
 
 stopwords = stopwords.words('english')
+models = {
+    "models":{
+        "Logistic Regression": LogisticRegression(), 
+        "Support Vector Machines": LinearSVC(), 
+        "Decision Trees": DecisionTreeClassifier(), 
+        "Random Forest Classifier": RandomForestClassifier(), 
+        "Naive Bayes": GaussianNB(), 
+        "K-Nearest Neighbor": KNeighborsClassifier()
+    },
+    "vectorizers": {
+            "BagOfWords": CountVectorizer(lowercase=True,stop_words=stopwords, ngram_range=(1,2)),
+            "TFIDF": TfidfVectorizer(lowercase=True, stop_words=stopwords, ngram_range=(1,2)),
+    }
+}
+
+
+# Create pipelines
+vectorizers = models['vectorizers']
+models = models['models']
+pipelines = []
+for km, model in models.items():
+    for vk,vectorizer in vectorizers.items():
+        pipelines.append(Pipeline([ (vk, vectorizer), (km,model)]))
+
+
+for pipe in pipelines:
+        score = pipe.fit(X_train, y_train).score(X_test, y_test)
+        print(score)
+
+quit()
+pipe = Pipeline([ ('BOW', CountVectorizer()), ('logistic', LogisticRegression())])
+
+pipe.fit(X_train, y_train).score(X_test, y_test)
+
+accuracy = pipe.score(X_test, y_test)
+print(accuracy)
+
+quit()
+
+
+
+
+
 models = {
         "Logistic Regression": LogisticRegression(), 
         "Support Vector Machines": LinearSVC(), 
