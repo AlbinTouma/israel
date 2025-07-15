@@ -11,7 +11,7 @@ from .database import Database
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from abc import ABC, abstractmethod
-   
+
 class Scraper(ABC):
     def __init__(self, scrape_object: WebPage, filename: str, driver=None):
         self.scrape_object = scrape_object
@@ -23,5 +23,6 @@ class Scraper(ABC):
         pass
 
     def run(self):
+        print(self.driver.__class__)
         self.driver.get(self.scrape_object.link)
         self.scrape_method()

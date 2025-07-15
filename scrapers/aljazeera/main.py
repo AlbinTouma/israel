@@ -20,6 +20,7 @@ class AljazeeraScraper():
         self.driver  = driver
 
     def collect_titles(self):
+        print("Collect")
         x = WebPage(website='aljazeera', link="https://www.aljazeera.com/tag/israel-palestine-conflict/")
         scraper = HomePage(x, 'aljazeera_links')
         scraper.run()
@@ -33,12 +34,12 @@ class AljazeeraScraper():
             self.collect_titles()
 
         js = js[586:]
-        
+
         count = 0
         for i in js:
             page = WebPage(link=i['link'])
             opts = {
-                "news": News(page, file, self.driver) , 
+                "news": News(page, file, self.driver) ,
                 "news/liveblog": LiveBlog(page, file, self.driver),
                 "program/newsfeed": ProgramNews(page, file, self.driver)
             }

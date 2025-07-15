@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "israel"
+version = "0.1.0"
+description = ""
+authors = ["Albin Touma"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+selenium = "^4.34.2"
+undetected-chromedriver = "^3.5.5"
+psutil = "^7.0.0"
+scikit-learn = "^1.7.0"
+pandas = "^2.3.1"
+eli5 = "^0.16.0"
+matplotlib = "^3.10.3"
+nltk = "^3.9.1"
+ipykernel = "^6.29.5"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
