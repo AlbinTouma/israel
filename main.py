@@ -13,8 +13,12 @@ from core import DriverClass
 driver = DriverClass().get_stealth_driver()
 
 print('\nCollect titles?\n')
+
 user_input = input("Scrape titles: Yes or No \t")
-scraper = IsraeliTimes(user_input, driver)
-scraper.full_run()
-#AljazeeraScraper = AljazeeraScraper(user_input, driver)
-#AljazeeraScraper.full_run()
+IsraeliTimesScraper = IsraeliTimes(user_input, driver)
+AljazeeraScraper = AljazeeraScraper(user_input, driver)
+
+
+
+IsraeliTimesScraper.full_run()
+AljazeeraScraper.full_run()
